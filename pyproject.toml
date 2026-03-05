@@ -6,9 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "rockfish-mcp"
 version = "0.1.0"
 description = "MCP server for Rockfish API"
-authors = [
-    {name = "Your Name", email = "your.email@example.com"}
-]
+authors = [{ name = "Rockfish Data" }]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.8"
@@ -46,8 +44,8 @@ rockfish-mcp = "rockfish_mcp.server:cli"
 where = ["src"]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/rockfish-mcp"
-Repository = "https://github.com/yourusername/rockfish-mcp"
+Homepage = "https://github.com/Rockfish-Data/rockfish-mcp"
+Repository = "https://github.com/Rockfish-Data/rockfish-mcp"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "session"

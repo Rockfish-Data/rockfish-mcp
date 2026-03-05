@@ -17,7 +17,7 @@ This MCP server provides tools for the following Rockfish resources:
 
 1. Clone the repository and set up your virtual environment (Python 3.12 or below):
 ```bash
-git clone https://github.com/yourusername/rockfish-mcp.git
+git clone https://github.com/Rockfish-Data/rockfish-mcp.git
 cd rockfish-mcp
 python3.11 -m venv .venv
 source .venv/bin/activate
@@ -125,7 +125,7 @@ which python
 {
   "mcpServers": {
     "rockfish": {
-      "command": "/Users/shane/code/rockfish-mcp/.venv/bin/python",
+      "command": "/path/to/rockfish-mcp/.venv/bin/python",
       "args": ["-m", "rockfish_mcp.server"]
     }
   }
@@ -156,7 +156,7 @@ npx @modelcontextprotocol/inspector
 
 1. **Start the MCP Inspector:**
 ```bash
-npx @modelcontextprotocol/inspector /Users/shane/code/rockfish-mcp/.venv/bin/python -m rockfish_mcp.server
+npx @modelcontextprotocol/inspector /path/to/rockfish-mcp/.venv/bin/python -m rockfish_mcp.server
 ```
 
 2. **Or create a test script** for easier repeated testing:
@@ -165,7 +165,7 @@ npx @modelcontextprotocol/inspector /Users/shane/code/rockfish-mcp/.venv/bin/pyt
 # test-mcp.sh
 export ROCKFISH_API_KEY="your_api_key_here"
 export ROCKFISH_API_URL="https://api.rockfish.ai"
-npx @modelcontextprotocol/inspector /Users/shane/code/rockfish-mcp/.venv/bin/python -m rockfish_mcp.server
+npx @modelcontextprotocol/inspector /path/to/rockfish-mcp/.venv/bin/python -m rockfish_mcp.server
 ```
 
 Make it executable and run:
