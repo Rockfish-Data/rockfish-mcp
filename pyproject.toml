@@ -43,7 +43,7 @@ rockfish-mcp = "rockfish_mcp.server:cli"
 where = ["src"]
 
 [project.urls]
-Homepage = "https://github.com/Rockfish-Data/rockfish-mcp"
+Homepage = "https://github.com/Rockfish-Data/rockfish-mcp/README.md"
 Repository = "https://github.com/Rockfish-Data/rockfish-mcp"
 Issues = "https://github.com/Rockfish-Data/rockfish-mcp/issues"
 Documentation = "https://docs.rockfish.ai"
