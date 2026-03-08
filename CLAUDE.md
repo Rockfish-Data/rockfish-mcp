@@ -13,7 +13,7 @@ python3.11 -m venv .venv
 source .venv/bin/activate  # On macOS/Linux
 
 # Install in development mode with dev dependencies (includes black and isort)
-pip install -e ".[dev]"
+pip install -e ".[dev]" --find-links https://packages.rockfish.ai
 
 # OR install from requirements.txt (exact locked versions)
 pip install -r requirements.txt
