@@ -1,49 +1,59 @@
 # Rockfish MCP Server
 
-A Model Context Protocol (MCP) server that provides access to the Rockfish API, enabling AI assistants to interact with Rockfish's machine learning platform.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Rockfish-Data/rockfish-mcp/blob/main/LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-## Features
+A Model Context Protocol server that provides tools to interact with the [Rockfish AI](https://rockfish.ai) platform for synthetic data generation, dataset management, and ML workflow orchestration.
 
-This MCP server provides tools for the following Rockfish resources:
+### Available Tools
 
-- **Databases**: Create, list, update, and delete databases
-- **Worker Sets**: Manage worker sets for distributed processing
-- **Workflows**: Create and manage ML workflows
-- **Models**: Upload, list, and manage ML models
-- **Projects**: Organize and manage projects
-- **Datasets**: Create and manage datasets
+**Rockfish API** — databases, worker sets, workflows, models, projects, datasets, organizations (22+ tools)
+
+**SDK (Synthetic Data Generation)**
+- `obtain_train_config` — generate training configuration with automatic column type detection
+- `update_train_config` — modify training hyperparameters or field classifications
+- `start_training_workflow` — start TabGAN training workflow
+- `get_workflow_logs` — stream workflow logs with configurable level and timeout
+- `get_trained_model_id` — extract trained model ID from completed workflow
+- `start_generation_workflow` — start generation workflow from trained model
+- `obtain_synthetic_dataset_id` — extract generated dataset ID from completed workflow
+- `plot_distribution` — generate distribution plots comparing real and synthetic data
+- `get_marginal_distribution_score` — calculate similarity score between real and synthetic data
+
+**Manta (Analytics & Scenarios)** — requires `MANTA_API_URL`
+- `discover_schema` — discover dataset schema
+- `generate_test_suite` — generate test suites
+- `execute_query` / `execute_nl_query` — run SQL or natural language queries
+- `inject_scenario` — inject test scenarios into datasets
 
 ## Installation
 
-1. Clone the repository and set up your virtual environment (Python 3.12 or below):
+### Using uv (recommended)
+
+When using [`uv`](https://docs.astral.sh/uv/) no specific installation is needed. We will
+use [`uvx`](https://docs.astral.sh/uv/guides/tools/) to directly run *rockfish-mcp*.
+
+### Using pip
+
 ```bash
-git clone https://github.com/yourusername/rockfish-mcp.git
+pip install rockfish-mcp
+```
+
+After installation, you can run it as a script using:
+
+```bash
+python -m rockfish_mcp.server
+```
+
+### From source
+
+```bash
+git clone https://github.com/Rockfish-Data/rockfish-mcp.git
 cd rockfish-mcp
 python3.11 -m venv .venv
 source .venv/bin/activate
-```
-
-2. Install dependencies (choose one method):
-
-**Method A: Install with dev tools (recommended for contributors):**
-```bash
 pip install -e ".[dev]"
-```
-
-**Method B: Install from requirements.txt (exact locked versions):**
-```bash
-pip install -r requirements.txt
-```
-
-**Method C: Install runtime only (for production):**
-```bash
-pip install -e .
-```
-
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env and add your Rockfish API key
 ```
 
 ## Configuration
@@ -55,306 +65,184 @@ ROCKFISH_API_KEY=your_api_key_here
 ROCKFISH_API_URL=https://api.rockfish.ai
 ```
 
-If you want to use a specific Rockfish Organization and/or Rockfish Project, 
-add the following to the `.env` file too: 
+Optional settings:
 
 ```env
 ROCKFISH_ORGANIZATION_ID=your_organization_id_here
 ROCKFISH_PROJECT_ID=your_project_id_here
+MANTA_API_URL=https://manta.rockfish.ai
 ```
 
-## Usage
+### Usage with Claude Desktop
 
-Run the MCP server:
+Add to your `claude_desktop_config.json`:
 
-```bash
-python -m rockfish_mcp.server
-```
-
-Or use the console script:
-
-```bash
-rockfish-mcp
-```
-
-## Claude Desktop Setup
-
-To use this MCP server with Claude Desktop:
-
-1. **Complete some of the installation steps above** (clone, install dependencies). 
-Note that you do not need to start the MCP server manually for using it with Claude Desktop.
-Claude Desktop will automatically start it for you when you follow the steps below.
-Also, the .env file doesn't need to be created, we will be adding the environment 
-variables to the Claude setup.
-
-2. **Find your Claude Desktop configuration directory:**
-   - **macOS**: `~/Library/Application Support/Claude/`
-   - **Windows**: `%APPDATA%\Claude\`
-   - **Linux**: `~/.config/Claude/`
-
-3. **Create or edit the `claude_desktop_config.json` file** in that directory:
-
-Note that setting `ROCKFISH_ORGANIZATION_ID` and `ROCKFISH_PROJECT_ID` is optional.
-If you don't set these variables, the default organization and/or default project
-will be used.
+<details>
+<summary>Using uvx</summary>
 
 ```json
 {
   "mcpServers": {
     "rockfish": {
-      "command": "/path/to/your/project/.venv/bin/python",
-      "args": ["-m", "rockfish_mcp.server"]
+      "command": "uvx",
+      "args": ["rockfish-mcp"],
+      "env": {
+        "ROCKFISH_API_KEY": "your_api_key_here",
+        "ROCKFISH_API_URL": "https://api.rockfish.ai"
+      }
     }
   }
 }
 ```
+</details>
 
-**Note:** Environment variables (API keys, URLs, organization/project IDs) are configured in the `.env` file in the project root, not in `claude_desktop_config.json`.
+<details>
+<summary>Using pip installation</summary>
 
-4. **Update the paths in the configuration:**
-   - Replace `/path/to/your/project/.venv/bin/python` with the actual path to your Python executable
-   - All API keys and URLs should be configured in the `.env` file (see step 5)
-
-5. **Get the correct Python path** by running this command in your project directory:
-```bash
-which python
-```
-
-6. **Example configuration** (replace with your actual path):
 ```json
 {
   "mcpServers": {
     "rockfish": {
-      "command": "/Users/shane/code/rockfish-mcp/.venv/bin/python",
-      "args": ["-m", "rockfish_mcp.server"]
+      "command": "python",
+      "args": ["-m", "rockfish_mcp.server"],
+      "env": {
+        "ROCKFISH_API_KEY": "your_api_key_here",
+        "ROCKFISH_API_URL": "https://api.rockfish.ai"
+      }
     }
   }
 }
 ```
+</details>
 
-Configure your API key and URL in the `.env` file:
+<details>
+<summary>Using docker</summary>
+
+```json
+{
+  "mcpServers": {
+    "rockfish": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "ROCKFISH_API_KEY", "-e", "ROCKFISH_API_URL", "rockfish-mcp"],
+      "env": {
+        "ROCKFISH_API_KEY": "your_api_key_here",
+        "ROCKFISH_API_URL": "https://api.rockfish.ai"
+      }
+    }
+  }
+}
+```
+</details>
+
+### Usage with VS Code
+
+For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
+
+Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace.
+
+> Note that the `mcp` key is needed when using the `mcp.json` file.
+
+<details>
+<summary>Using uvx</summary>
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "rockfish": {
+        "command": "uvx",
+        "args": ["rockfish-mcp"],
+        "env": {
+          "ROCKFISH_API_KEY": "your_api_key_here",
+          "ROCKFISH_API_URL": "https://api.rockfish.ai"
+        }
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary>Using pip installation</summary>
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "rockfish": {
+        "command": "python",
+        "args": ["-m", "rockfish_mcp.server"],
+        "env": {
+          "ROCKFISH_API_KEY": "your_api_key_here",
+          "ROCKFISH_API_URL": "https://api.rockfish.ai"
+        }
+      }
+    }
+  }
+}
+```
+</details>
+
+## Debugging
+
+You can use the MCP inspector to debug the server. For uvx installations:
+
 ```bash
-ROCKFISH_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-ROCKFISH_API_URL=https://api.rockfish.ai
+npx @modelcontextprotocol/inspector uvx rockfish-mcp
 ```
 
-7. **Restart Claude Desktop** after making these changes
-
-8. **Test the connection** by asking Claude to list your Rockfish databases or projects
-
-## MCP Inspector Setup
-
-The MCP Inspector is a debugging tool that helps you test your MCP server before connecting it to Claude Desktop.
-
-### Installation
+Or if you've installed the package in a specific directory or are developing on it:
 
 ```bash
-npx @modelcontextprotocol/inspector
+cd path/to/rockfish-mcp
+npx @modelcontextprotocol/inspector .venv/bin/python -m rockfish_mcp.server
 ```
-
-### Usage
-
-1. **Start the MCP Inspector:**
-```bash
-npx @modelcontextprotocol/inspector /Users/shane/code/rockfish-mcp/.venv/bin/python -m rockfish_mcp.server
-```
-
-2. **Or create a test script** for easier repeated testing:
-```bash
-#!/bin/bash
-# test-mcp.sh
-export ROCKFISH_API_KEY="your_api_key_here"
-export ROCKFISH_API_URL="https://api.rockfish.ai"
-npx @modelcontextprotocol/inspector /Users/shane/code/rockfish-mcp/.venv/bin/python -m rockfish_mcp.server
-```
-
-Make it executable and run:
-```bash
-chmod +x test-mcp.sh
-./test-mcp.sh
-```
-
-3. **The Inspector will open in your browser** and show:
-   - Available tools (should show all 32 Rockfish tools)
-   - Tool schemas and descriptions
-   - Interactive tool testing interface
-
-4. **Test your tools** by:
-   - Selecting a tool from the list (e.g., `list_databases`)
-   - Filling in required parameters
-   - Clicking "Call Tool" to test the API call
-   - Viewing the response
-
-### Useful Tools to Test First
-
-- **`list_databases`** - Simple GET request with no parameters
-- **`list_projects`** - Another simple list operation
-- **`get_database`** - Test with a database ID from the list
-- **`create_database`** - Test creating a new resource
-
-### Troubleshooting
-
-- **MCP server not appearing**: Check that the Python path is correct and the virtual environment is activated
-- **Authentication errors**: Verify your `ROCKFISH_API_KEY` is correct
-- **Connection issues**: Confirm your `ROCKFISH_API_URL` is accessible
-- **Path issues on Windows**: Use forward slashes or escaped backslashes in JSON paths
-
-## Available Tools
-
-### Database Tools
-- `list_databases`: List all databases
-- `create_database`: Create a new database
-- `get_database`: Get a specific database by ID
-- `update_database`: Update a database
-- `delete_database`: Delete a database
-
-### Worker Set Tools
-- `list_worker_sets`: List all worker sets
-- `create_worker_set`: Create a new worker set
-- `get_worker_set`: Get a specific worker set by ID
-- `delete_worker_set`: Delete a worker set
-- `get_worker_set_actions`: List actions that the specific worker set can run
-- `list_available_actions`: List all actions available to the user (across all worker sets)
-
-### Workflow Tools
-- `list_workflows`: List all workflows
-- `create_workflow`: Create and run a new workflow
-- `get_workflow`: Get a specific workflow by ID
-- `update_workflow`: Update a workflow
-
-### Model Tools
-- `list_models`: List all models
-- `upload_model`: Upload a new model
-- `get_model`: Get a specific model by ID
-- `delete_model`: Delete a model
-
-### Organization Tools
-- `get_active_organization`: Get the currently active organization
-- `list_projects`: List all organizations
-
-### Project Tools
-- `get_active_project`: Get the currently active project
-- `list_projects`: List all projects
-- `create_project`: Create a new project
-- `get_project`: Get a specific project by ID
-- `update_project`: Update a project
-
-### Dataset Tools
-- `list_datasets`: List all datasets
-- `create_dataset`: Create a new dataset
-- `get_dataset`: Get a specific dataset by ID
-- `update_dataset`: Update a dataset
-- `delete_dataset`: Delete a dataset
-- `get_dataset_schema`: Get dataset metadata present in its schema
-
-### SDK Tools (Synthetic Data Generation)
-These tools use the Rockfish Python SDK to provide end-to-end synthetic data generation workflows:
-
-**Configuration Management:**
-- `obtain_train_config`: Generate training configuration for TabGAN model with automatic column type detection
-- `update_train_config` [experimental]: Modify training hyperparameters or field classifications
-
-**Workflow Execution:**
-- `start_training_workflow`: Start TabGAN training workflow using cached configuration
-- `get_workflow_logs`: Stream workflow logs with configurable level (DEBUG/INFO/WARN/ERROR) and timeout
-- `get_trained_model_id`: Extract trained model ID from completed training workflow
-
-**Synthetic Data Generation:**
-- `start_generation_workflow`: Start generation workflow from trained model
-- `obtain_synthetic_dataset_id`: Extract generated dataset ID from completed workflow
-
-**Quality Assessment:**
-- `plot_distribution`: Generate distribution plots comparing real and synthetic data
-- `get_marginal_distribution_score`: Calculate similarity score between real and synthetic data
 
 ## Development
 
 ### Setup
 
-To contribute to this project, install with dev dependencies:
+Install with dev dependencies:
+
 ```bash
 pip install -e ".[dev]"
 ```
 
-This installs black, isort, and pytest for code formatting and testing.
-
 ### Code Formatting
 
-This project uses **black** and **isort** to maintain consistent code style.
-
-**Format your code before committing:**
 ```bash
-# Format imports
-isort src/rockfish_mcp/
-
-# Format code style
-black src/rockfish_mcp/
-```
-
-**Check formatting without modifying files:**
-```bash
-isort --check-only src/rockfish_mcp/
-black --check src/rockfish_mcp/
+isort src/rockfish_mcp/ && black src/rockfish_mcp/
 ```
 
 ### Running Tests
 
-The project includes:
-- Unit tests for Manta Analytics/Scenarios tool routing and header behavior (no external API required)
-- Integration tests for Rockfish/Manta APIs (requires credentials)
+**Unit tests** (no credentials required):
 
-**Run unit tests (recommended for local validation):**
 ```bash
-python -m pytest tests/test_manta_client.py tests/test_manta_tools.py
+pytest tests/test_manta_client.py tests/test_manta_tools.py
 ```
 
-To run the integration tests, set the required environment variables:
+**Integration tests** (requires `.env` with real credentials):
 
-**Required Environment Variables:**
 ```bash
-# Add these to your .env file or export them
-ROCKFISH_API_KEY=your_api_key_here
-ROCKFISH_API_URL=https://api.rockfish.ai
-MANTA_API_URL=https://manta.rockfish.ai
-ROCKFISH_ORGANIZATION_ID=your_organization_id
-ROCKFISH_PROJECT_ID=your_project_id
+pytest tests/
 ```
 
-**Running the tests:**
-```bash
-# Run all tests
-python -m pytest tests/
+## Contributing
 
-# Run integration-focused test file
-python -m pytest tests/test_list_resources.py
-
-# Run tests with verbose output
-python -m pytest -v tests/
-
-# Run tests and see print output
-python -m pytest -s tests/
-```
-
-**Test Coverage:**
-- **tests/test_manta_client.py**: Verifies Manta auth headers and endpoint routing for:
-  - `discover_schema`
-  - `generate_test_suite`
-  - `execute_query`
-  - `execute_nl_query`
-  - `inject_scenario`
-- **tests/test_manta_tools.py**: Verifies tool registration and server-side routing for new Manta tools and SQL query backwards compatibility.
-
-### Contributing
-
-To contribute to this project:
+We encourage contributions to help expand and improve rockfish-mcp. Whether you want to add new tools, enhance existing functionality, or improve documentation, your input is valuable.
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Format your code with isort and black
+4. Format your code with `isort` and `black`
 5. Add tests if applicable
 6. Submit a pull request
 
+For examples of other MCP servers and implementation patterns, see:
+https://github.com/modelcontextprotocol/servers
+
 ## License
 
-MIT License
+rockfish-mcp is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the [LICENSE](LICENSE) file in the project repository.
