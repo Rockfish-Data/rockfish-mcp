@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from mcp.server import NotificationOptions, Server
 from mcp.server.models import InitializationOptions
 
+from . import __version__
 from .client import RockfishClient
 from .manta_client import MantaClient
 from .sdk_client import RockfishSDKClient
@@ -901,7 +902,7 @@ async def main():
             write_stream,
             InitializationOptions(
                 server_name="rockfish-mcp",
-                server_version="0.1.0",
+                server_version=__version__,
                 capabilities=server.get_capabilities(
                     notification_options=NotificationOptions(),
                     experimental_capabilities={},

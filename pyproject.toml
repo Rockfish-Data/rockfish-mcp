@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rockfish-mcp"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A Model Context Protocol server providing tools to interact with the Rockfish AI platform for synthetic data generation"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -47,6 +47,9 @@ Homepage = "https://github.com/Rockfish-Data/rockfish-mcp/README.md"
 Repository = "https://github.com/Rockfish-Data/rockfish-mcp"
 Issues = "https://github.com/Rockfish-Data/rockfish-mcp/issues"
 Documentation = "https://docs.rockfish.ai"
+
+[tool.setuptools.dynamic]
+version = {attr = "rockfish_mcp.__version__"}
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "session"
