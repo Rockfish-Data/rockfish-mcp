@@ -53,7 +53,29 @@ git clone https://github.com/Rockfish-Data/rockfish-mcp.git
 cd rockfish-mcp
 python3.11 -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+```
+
+2. Install dependencies (choose one method):
+
+**Method A: Install with dev tools (recommended for contributors):**
+```bash
+pip install -e ".[dev]" --find-links https://packages.rockfish.ai
+```
+
+**Method B: Install from requirements.txt (exact locked versions):**
+```bash
+pip install -r requirements.txt
+```
+
+**Method C: Install runtime only (for production):**
+```bash
+pip install -e . --find-links https://packages.rockfish.ai
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env and add your Rockfish API key
 ```
 
 ## Configuration
@@ -206,7 +228,7 @@ npx @modelcontextprotocol/inspector .venv/bin/python -m rockfish_mcp.server
 Install with dev dependencies:
 
 ```bash
-pip install -e ".[dev]"
+pip install -e ".[dev]" --find-links https://packages.rockfish.ai
 ```
 
 ### Code Formatting
