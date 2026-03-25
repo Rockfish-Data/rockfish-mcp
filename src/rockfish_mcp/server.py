@@ -423,6 +423,21 @@ async def handle_list_tools() -> List[types.Tool]:
                 "required": ["id"],
             },
         ),
+        # Dataset query bookmark tools
+        types.Tool(
+            name="get_dataset_query_bookmarks",
+            description="Retrieve the query bookmarks for a dataset",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "dataset_id": {
+                        "type": "string",
+                        "description": "Dataset ID",
+                    }
+                },
+                "required": ["dataset_id"],
+            },
+        ),
         # SQL query tools
         types.Tool(
             name="execute_sql_query",
@@ -753,6 +768,7 @@ async def handle_call_tool(
         "obtain_synthetic_dataset_id",
         "plot_distribution",
         "get_marginal_distribution_score",
+        "get_dataset_query_bookmarks",
     ]
 
     if name in sdk_tools:
