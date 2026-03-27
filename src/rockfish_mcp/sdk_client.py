@@ -237,8 +237,7 @@ class RockfishSDKClient:
             }
         elif tool_name == "get_dataset_query_bookmarks":
             dataset_id = arguments["dataset_id"]
-            bookmarks = await glue.get_dataset_bookmarks(self._conn, dataset_id)
-            return {"queries": bookmarks}
+            return await glue.get_dataset_bookmarks(self._conn, dataset_id)
 
         elif tool_name == "get_marginal_distribution_score":
             dataset_ids = arguments["dataset_ids"]

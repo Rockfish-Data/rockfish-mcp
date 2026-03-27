@@ -58,13 +58,10 @@ class TestDatasetQueryBookmarks:
 
         bookmarks = parse_response_text(first_content.text, "get_dataset_query_bookmarks")
 
-        assert isinstance(bookmarks, dict), "Response should be a dict"
-        assert "queries" in bookmarks, "Response should contain 'queries' key"
-        assert isinstance(bookmarks["queries"], list), "'queries' should be a list"
-        assert len(bookmarks["queries"]) > 0, "Should have at least one bookmark"
+        assert isinstance(bookmarks, list), "Response should be a list of query strings"
+        assert len(bookmarks) > 0, "Should have at least one bookmark"
 
-        first = bookmarks["queries"][0]
-        assert isinstance(first, dict), "Each bookmark should be a dict with 'query' and 'metadata'"
-        assert first.get("query") == TEST_BOOKMARK["query"], (
-            f"Expected query '{TEST_BOOKMARK['query']}', got: {first}"
+        assert isinstance(bookmarks[0], str), "Each bookmark should be a query string"
+        assert bookmarks[0] == TEST_BOOKMARK["query"], (
+            f"Expected query '{TEST_BOOKMARK['query']}', got: {bookmarks[0]}"
         )
