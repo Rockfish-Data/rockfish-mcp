@@ -183,7 +183,7 @@ class RockfishClient:
             dataset_id = arguments["id"]
             return await self._request("GET", f"/dataset/{dataset_id}/schema")
 
-        # Query endpoints
+# Query endpoints
         elif tool_name in ["execute_query", "execute_sql_query"]:
             query = arguments["query"]
             project_id = arguments.get("project_id")
