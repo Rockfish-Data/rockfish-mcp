@@ -249,6 +249,7 @@ pytest tests/test_manta_client.py tests/test_manta_tools.py
 
 ```bash
 pytest tests/
+pytest --env=.env.prod.local --html=report.html --self-contained-html
 ```
 
 ## Contributing
