@@ -23,6 +23,7 @@ class RockfishClient:
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "Accept": "application/json",
         }
 
         if organization_id:
