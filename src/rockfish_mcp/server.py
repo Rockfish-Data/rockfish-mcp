@@ -8,8 +8,7 @@ from typing import Any, Dict, List, Optional
 import mcp.server.stdio
 import mcp.types as types
 from dotenv import load_dotenv
-from mcp.server import NotificationOptions, Server
-from mcp.server.models import InitializationOptions
+from mcp.server import Server, ServerRequestContext
 
 from . import __version__
 from .client import RockfishClient
@@ -20,15 +19,12 @@ load_dotenv()
 
 logger = logging.getLogger("rockfish-mcp")
 
-server = Server("rockfish-mcp")
-
 # Global client instances
 rockfish_client: Optional[RockfishClient] = None
 manta_client: Optional[MantaClient] = None
 sdk_client: Optional[RockfishSDKClient] = None
 
 
-@server.list_tools()
 async def handle_list_tools() -> List[types.Tool]:
     """List available Rockfish API and Manta service tools."""
     tools = [
@@ -751,7 +747,6 @@ async def handle_list_tools() -> List[types.Tool]:
     return tools
 
 
-@server.call_tool()
 async def handle_call_tool(
     name: str, arguments: Dict[str, Any]
 ) -> List[types.TextContent]:
@@ -870,6 +865,27 @@ async def handle_call_tool(
         return [types.TextContent(type="text", text=f"Error calling {name}: {str(e)}")]
 
 
+async def _on_list_tools(
+    ctx: ServerRequestContext, params: Optional[types.PaginatedRequestParams]
+) -> types.ListToolsResult:
+    return types.ListToolsResult(tools=await handle_list_tools())
+
+
+async def _on_call_tool(
+    ctx: ServerRequestContext, params: types.CallToolRequestParams
+) -> types.CallToolResult:
+    content = await handle_call_tool(params.name, params.arguments or {})
+    return types.CallToolResult(content=content)
+
+
+server = Server(
+    "rockfish-mcp",
+    version=__version__,
+    on_list_tools=_on_list_tools,
+    on_call_tool=_on_call_tool,
+)
+
+
 async def main():
     global rockfish_client, manta_client, sdk_client
 
@@ -914,16 +930,7 @@ async def main():
     # Run the server
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
         await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="rockfish-mcp",
-                server_version=__version__,
-                capabilities=server.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={},
-                ),
-            ),
+            read_stream, write_stream, server.create_initialization_options()
         )
 
     # Cleanup connections

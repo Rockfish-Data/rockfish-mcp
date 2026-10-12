@@ -51,26 +51,16 @@ python -m rockfish_mcp.server
 ```bash
 git clone https://github.com/Rockfish-Data/rockfish-mcp.git
 cd rockfish-mcp
-python3.11 -m venv .venv
-source .venv/bin/activate
 ```
 
-2. Install dependencies (choose one method):
+2. Install dependencies (exact versions from `uv.lock`, including dev tools):
 
-**Method A: Install with dev tools (recommended for contributors):**
 ```bash
-pip install -e ".[dev]" --find-links https://packages.rockfish.ai
+uv sync
+source .venv/bin/activate  # optional; or prefix commands with `uv run`
 ```
 
-**Method B: Install from requirements.txt (exact locked versions):**
-```bash
-pip install -r requirements.txt
-```
-
-**Method C: Install runtime only (for production):**
-```bash
-pip install -e . --find-links https://packages.rockfish.ai
-```
+For a runtime-only install (no dev tools), use `uv sync --no-dev`.
 
 3. Set up environment variables:
 ```bash
@@ -156,56 +146,6 @@ Add to your `claude_desktop_config.json`:
 ```
 </details>
 
-### Usage with VS Code
-
-For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
-
-Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace.
-
-> Note that the `mcp` key is needed when using the `mcp.json` file.
-
-<details>
-<summary>Using uvx</summary>
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "rockfish": {
-        "command": "uvx",
-        "args": ["rockfish-mcp"],
-        "env": {
-          "ROCKFISH_API_KEY": "your_api_key_here",
-          "ROCKFISH_API_URL": "https://api.rockfish.ai"
-        }
-      }
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary>Using pip installation</summary>
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "rockfish": {
-        "command": "python",
-        "args": ["-m", "rockfish_mcp.server"],
-        "env": {
-          "ROCKFISH_API_KEY": "your_api_key_here",
-          "ROCKFISH_API_URL": "https://api.rockfish.ai"
-        }
-      }
-    }
-  }
-}
-```
-</details>
-
 ## Debugging
 
 You can use the MCP inspector to debug the server. For uvx installations:
@@ -225,11 +165,13 @@ npx @modelcontextprotocol/inspector .venv/bin/python -m rockfish_mcp.server
 
 ### Setup
 
-Install with dev dependencies:
+Install with dev dependencies (the default for `uv sync`):
 
 ```bash
-pip install -e ".[dev]" --find-links https://packages.rockfish.ai
+uv sync
 ```
+
+Run tools with `uv run` (for example `uv run pytest`) or activate `.venv` first.
 
 ### Code Formatting
 
