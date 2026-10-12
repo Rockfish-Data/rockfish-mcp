@@ -3770,6 +3770,7 @@ name = "rockfish-mcp"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },
+    { name = "jsonschema" },
     { name = "mcp" },
     { name = "pydantic" },
     { name = "python-dotenv" },
@@ -3789,6 +3790,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "httpx", specifier = ">=0.27.0" },
+    { name = "jsonschema", specifier = ">=4.0" },
     { name = "mcp", specifier = ">=2.0" },
     { name = "pydantic", specifier = ">=2.13.1" },
     { name = "python-dotenv", specifier = ">=1.0.0" },

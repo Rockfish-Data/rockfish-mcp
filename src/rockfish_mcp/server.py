@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 import mcp.server.stdio
 import mcp.types as types
 from dotenv import load_dotenv
+from jsonschema import Draft202012Validator
 from mcp.server import Server, ServerRequestContext
 
 from . import __version__
@@ -874,7 +875,27 @@ async def _on_list_tools(
 async def _on_call_tool(
     ctx: ServerRequestContext, params: types.CallToolRequestParams
 ) -> types.CallToolResult:
-    content = await handle_call_tool(params.name, params.arguments or {})
+    # mcp 2.x no longer validates arguments against the tool's inputSchema, so do it here
+    arguments = params.arguments or {}
+    tool = next((t for t in await handle_list_tools() if t.name == params.name), None)
+    if tool is not None:
+        errors = sorted(
+            Draft202012Validator(tool.input_schema).iter_errors(arguments),
+            key=lambda e: list(e.path),
+        )
+        if errors:
+            details = "; ".join(e.message for e in errors)
+            return types.CallToolResult(
+                content=[
+                    types.TextContent(
+                        type="text",
+                        text=f"Invalid arguments for {params.name}: {details}",
+                    )
+                ],
+                is_error=True,
+            )
+
+    content = await handle_call_tool(params.name, arguments)
     return types.CallToolResult(content=content)
 
 
