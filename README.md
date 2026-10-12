@@ -29,24 +29,11 @@ A Model Context Protocol server that provides tools to interact with the [Rockfi
 
 ## Installation
 
-### Using uv (recommended)
+`rockfish-mcp` is not currently published to PyPI, so install it from source (below) and run it
+with `uv run --directory /path/to/rockfish-mcp rockfish-mcp`. The `uvx rockfish-mcp` and
+`pip install rockfish-mcp` forms only work once the package is published to an index.
 
-When using [`uv`](https://docs.astral.sh/uv/) no specific installation is needed. We will
-use [`uvx`](https://docs.astral.sh/uv/guides/tools/) to directly run *rockfish-mcp*.
-
-### Using pip
-
-```bash
-pip install rockfish-mcp
-```
-
-After installation, you can run it as a script using:
-
-```bash
-python -m rockfish_mcp.server
-```
-
-### From source
+### From source (recommended)
 
 ```bash
 git clone https://github.com/Rockfish-Data/rockfish-mcp.git
@@ -89,8 +76,35 @@ MANTA_API_URL=https://manta.rockfish.ai
 
 Add to your `claude_desktop_config.json`:
 
+<details open>
+<summary>From a source checkout (uv run)</summary>
+
+`rockfish-mcp` is not published to PyPI, so `uvx rockfish-mcp` fails with
+`rockfish-mcp was not found in the package registry`. Run it from a clone instead. Use
+`uv run --directory` rather than `uvx --from`, so the locked dependencies and the Rockfish SDK
+`find-links` index from `pyproject.toml` are honored. Use the absolute path to `uv`
+(`which uv`), since Claude Desktop does not inherit your shell `PATH`.
+
+```json
+{
+  "mcpServers": {
+    "rockfish": {
+      "command": "/opt/homebrew/bin/uv",
+      "args": ["run", "--directory", "/path/to/rockfish-mcp", "rockfish-mcp"],
+      "env": {
+        "ROCKFISH_API_KEY": "your_api_key_here",
+        "ROCKFISH_API_URL": "https://api.rockfish.ai"
+      }
+    }
+  }
+}
+```
+
+The first launch builds the environment and can take ~30 seconds; later launches are fast.
+</details>
+
 <details>
-<summary>Using uvx</summary>
+<summary>Using uvx (requires a published package)</summary>
 
 ```json
 {
@@ -109,7 +123,7 @@ Add to your `claude_desktop_config.json`:
 </details>
 
 <details>
-<summary>Using pip installation</summary>
+<summary>Using pip installation (requires a published package)</summary>
 
 ```json
 {
@@ -148,18 +162,20 @@ Add to your `claude_desktop_config.json`:
 
 ## Debugging
 
-You can use the MCP inspector to debug the server. For uvx installations:
+You can use the MCP inspector to debug the server from a source checkout:
 
 ```bash
-npx @modelcontextprotocol/inspector uvx rockfish-mcp
+npx @modelcontextprotocol/inspector uv run --directory path/to/rockfish-mcp rockfish-mcp
 ```
 
-Or if you've installed the package in a specific directory or are developing on it:
+Or run the venv's Python directly (after `uv sync`):
 
 ```bash
 cd path/to/rockfish-mcp
 npx @modelcontextprotocol/inspector .venv/bin/python -m rockfish_mcp.server
 ```
+
+If the server fails to start in Claude Desktop, check `~/Library/Logs/Claude/mcp-server-rockfish.log`.
 
 ## Development
 
