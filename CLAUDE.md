@@ -6,20 +6,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Installation and Setup
 
-**IMPORTANT**: Always use a virtual environment. Python 3.11 is recommended (SDK requires 3.12 or below).
+**IMPORTANT**: Dependencies are managed with [uv](https://docs.astral.sh/uv/) and locked in `uv.lock`. `.python-version` pins the default Python (3.12). Newer Pythons should work, but Homebrew's Python 3.14 (linked against OpenSSL 4.0) currently crashes on import because the Rockfish SDK's Snowflake dependency still references the removed `ssl.PROTOCOL_TLSv1`; use a uv-managed or python.org build instead until that is fixed upstream.
 
 ```bash
-python3.11 -m venv .venv
-source .venv/bin/activate  # On macOS/Linux
+# Create .venv and install the exact locked versions, including dev tools (black, isort, pytest)
+uv sync
 
-# Install in development mode with dev dependencies (includes black and isort)
-pip install -e ".[dev]" --find-links https://packages.rockfish.ai
-
-# OR install from requirements.txt (exact locked versions)
-pip install -r requirements.txt
+# Run commands in the project environment without activating it
+uv run pytest tests/test_manta_client.py tests/test_manta_tools.py
+uv run rockfish-mcp
 ```
 
-**Important**: The Rockfish SDK is hosted at `https://packages.rockfish.ai`. The [requirements.txt](requirements.txt) uses `--find-links https://packages.rockfish.ai` to resolve it.
+After changing dependencies in `pyproject.toml`, refresh the lock with `uv lock` and commit `uv.lock`.
+
+**Important**: The Rockfish SDK is hosted at `https://packages.rockfish.ai`, configured as a `find-links` source under `[tool.uv]` in [pyproject.toml](pyproject.toml). There is no `requirements.txt`; `uv.lock` is the source of truth.
 
 ### Environment Setup
 Required in a `.env` file at the project root:
