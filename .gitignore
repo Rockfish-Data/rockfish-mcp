@@ -51,3 +51,6 @@ venv.bak/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Test reports
+report.html
