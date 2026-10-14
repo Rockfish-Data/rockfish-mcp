@@ -29,18 +29,16 @@ async def seed_bookmark(dataset_id: str):
     """Store a query bookmark on the dataset via REST API before running tests."""
     client = server_module.rockfish_client
     assert client is not None, "rockfish_client not initialized"
+    endpoint = f"/dataset/{dataset_id}/query-bookmarks"
+    original = (await client._request("GET", endpoint)).get("queries", [])
     await client._request(
         "PUT",
-        f"/dataset/{dataset_id}/query-bookmarks",
+        endpoint,
         json={"queries": [TEST_BOOKMARK]},
     )
     yield
-    # Clean up
-    await client._request(
-        "PUT",
-        f"/dataset/{dataset_id}/query-bookmarks",
-        json={"queries": []},
-    )
+    # Restore whatever bookmarks the dataset had before the test
+    await client._request("PUT", endpoint, json={"queries": original})
 
 
 @pytest.mark.usefixtures("seed_bookmark")
