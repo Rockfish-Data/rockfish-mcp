@@ -24,25 +24,25 @@ TEST_BOOKMARK = {
 }
 
 
-class TestDatasetQueryBookmarks:
-    @pytest_asyncio.fixture(scope="class", autouse=True, loop_scope="session")
-    async def seed_bookmark(self, dataset_id: str):
-        """Store a query bookmark on the dataset via REST API before running tests."""
-        client = server_module.rockfish_client
-        assert client is not None, "rockfish_client not initialized"
-        await client._request(
-            "PUT",
-            f"/dataset/{dataset_id}/query-bookmarks",
-            json={"queries": [TEST_BOOKMARK]},
-        )
-        yield
-        # Clean up
-        await client._request(
-            "PUT",
-            f"/dataset/{dataset_id}/query-bookmarks",
-            json={"queries": []},
-        )
+@pytest_asyncio.fixture(scope="class", loop_scope="session")
+async def seed_bookmark(dataset_id: str):
+    """Store a query bookmark on the dataset via REST API before running tests."""
+    client = server_module.rockfish_client
+    assert client is not None, "rockfish_client not initialized"
+    endpoint = f"/dataset/{dataset_id}/query-bookmarks"
+    original = (await client._request("GET", endpoint)).get("queries", [])
+    await client._request(
+        "PUT",
+        endpoint,
+        json={"queries": [TEST_BOOKMARK]},
+    )
+    yield
+    # Restore whatever bookmarks the dataset had before the test
+    await client._request("PUT", endpoint, json={"queries": original})
 
+
+@pytest.mark.usefixtures("seed_bookmark")
+class TestDatasetQueryBookmarks:
     @pytest.mark.asyncio(loop_scope="session")
     async def test_get_dataset_query_bookmarks(self, dataset_id: str):
         """Retrieve query bookmarks for a dataset."""
