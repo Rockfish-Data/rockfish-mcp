@@ -6,6 +6,7 @@ the tool retrieves it. Confirms whether the SDK correctly handles the
 API's SingleQueryBookmark structure (query + metadata).
 """
 
+import httpx
 import pytest
 import pytest_asyncio
 import rockfish_mcp.server as server_module
@@ -30,7 +31,21 @@ async def seed_bookmark(dataset_id: str):
     client = server_module.rockfish_client
     assert client is not None, "rockfish_client not initialized"
     endpoint = f"/dataset/{dataset_id}/query-bookmarks"
-    original = (await client._request("GET", endpoint)).get("queries", [])
+    try:
+        existing = (await client._request("GET", endpoint)).get("queries", [])
+    except httpx.HTTPStatusError as e:
+        # A dataset with no bookmarks may 404, which means "none" rather than an error
+        if e.response.status_code != 404:
+            raise
+        existing = []
+    # Drop leftovers from an earlier run that died before teardown, so they
+    # are not captured as "original" and restored forever
+    original = [
+        b
+        for b in existing
+        if (b.get("query"), b.get("metadata", {}).get("name"))
+        != (TEST_BOOKMARK["query"], TEST_BOOKMARK["metadata"]["name"])
+    ]
     await client._request(
         "PUT",
         endpoint,
